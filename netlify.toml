@@ -1,0 +1,7 @@
+
+
+
+[[redirects]]
+  from = "/api/patches"
+  to = "/.netlify/functions/get-patches"
+  status = 200
