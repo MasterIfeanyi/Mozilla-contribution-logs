@@ -1,0 +1,9 @@
+[
+  {
+    "id": "1",
+    "title": "Fix tab crash on memory pressure",
+    "description": "Patched an issue where Firefox tabs would crash under heavy memory pressure due to improper garbage collection triggers in the tab unloading mechanism.",
+    "link": "https://phabricator.services.mozilla.com/D123456",
+    "createdAt": "2024-12-15T10:30:00Z"
+  }
+]
