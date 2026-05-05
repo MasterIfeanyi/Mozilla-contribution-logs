@@ -1,9 +1,30 @@
 [
   {
-    "id": "1",
+    "id": "1747000000000",
     "title": "Fix tab crash on memory pressure",
     "description": "Patched an issue where Firefox tabs would crash under heavy memory pressure due to improper garbage collection triggers in the tab unloading mechanism.",
     "link": "https://phabricator.services.mozilla.com/D123456",
     "createdAt": "2024-12-15T10:30:00Z"
+  },
+  {
+    "id": "1746000000000",
+    "title": "Fix memory leak in WebRTC ICE candidate handler",
+    "description": "Resolved a long-standing memory leak triggered when ICE candidates were gathered but the peer connection was closed before negotiation completed. Affected long-running conference sessions.",
+    "link": "https://phabricator.services.mozilla.com/D12345",
+    "createdAt": "2025-04-20T10:30:00.000Z"
+  },
+  {
+    "id": "1745000000000",
+    "title": "Improve DNS-over-HTTPS fallback logic",
+    "description": "DoH fallback to native resolver was not triggering correctly on certain network configurations, causing silent resolution failures. Added explicit timeout and retry path.",
+    "link": "https://phabricator.services.mozilla.com/D11987",
+    "createdAt": "2025-03-14T08:15:00.000Z"
+  },
+  {
+    "id": "1777990686044",
+    "title": "Patch 55",
+    "description": "uhiwhwiwhhw",
+    "link": "https://goal.com",
+    "createdAt": "2026-05-05T14:18:06.044Z"
   }
 ]

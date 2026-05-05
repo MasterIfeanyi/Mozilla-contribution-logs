@@ -1,0 +1,14 @@
+{
+  "name": "firefox-contribution-tracker",
+  "version": "1.0.0",
+  "description": "Personal Firefox codebase contribution log",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "dev": "netlify dev"
+  },
+  "devDependencies": {
+    "netlify-cli": "^17.38.1"
+  }
+}
