@@ -1,27 +1,37 @@
-const fs = require('fs').promises;
-const path = require('path');
+const { getStore } = require("@netlify/blobs");
 
 exports.handler = async () => {
-  try {
-    const dataPath = path.join(__dirname, '../../db/data.json');
-    const data = await fs.readFile(dataPath, 'utf-8');
-    const patches = JSON.parse(data);
-    
-    // Sort by most recent first
-    patches.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-    
-    return {
-      statusCode: 200,
-      headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*'
-      },
-      body: JSON.stringify(patches)
+    const headers = {
+        "Access-Control-Allow-Origin": "*",
+        "Content-Type": "application/json",
     };
-  } catch (error) {
-    return {
-      statusCode: 500,
-      body: JSON.stringify({ error: 'Failed to fetch patches' })
-    };
-  }
+
+    if (event.httpMethod === "OPTIONS") {
+        return { statusCode: 204, headers };
+    }
+
+    if (event.httpMethod !== "GET") {
+        return { statusCode: 405, headers, body: JSON.stringify({ error: "Method not allowed" }) };
+    }
+
+    try {
+        const store = getStore("patches");
+        const raw = await store.get("all");
+        const patches = raw ? JSON.parse(raw) : [];
+
+        // Sort by most recent first
+        patches.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+        return {
+            statusCode: 200,
+            headers,
+            body: JSON.stringify(patches)
+        };
+    } catch (error) {
+        return {
+            statusCode: 500,
+            headers,
+            body: JSON.stringify({ error: 'Failed to fetch patches', detail: err.message })
+        };
+    }
 };

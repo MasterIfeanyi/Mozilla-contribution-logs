@@ -1,18 +1,13 @@
-const fs = require("fs");
-const path = require("path");
+const { getStore } = require("@netlify/blobs");
 
-const DATA_FILE = path.join(__dirname, "../../db/data.json");
-
-function readPatches() {
-    try {
-        return JSON.parse(fs.readFileSync(DATA_FILE, "utf8"));
-    } catch {
-        return [];
-    }
+async function readPatches() {
+    const store = getStore("patches");
+    const raw = await store.get("all");
+    return raw ? JSON.parse(raw) : [];
 }
-
-function writePatches(patches) {
-    fs.writeFileSync(DATA_FILE, JSON.stringify(patches, null, 2), "utf8");
+async function writePatches(patches) {
+    const store = getStore("patches");
+    await store.set("all", JSON.stringify(patches));
 }
 
 
@@ -78,7 +73,7 @@ exports.handler = async (event) => {
             return { statusCode: 400, headers, body: JSON.stringify({ error: "Invalid URL" }) };
         }
 
-        const patches = readPatches();
+        const patches = await readPatches();
         const newPatch = {
             id: Date.now().toString(),
             title: title.trim(),
@@ -88,7 +83,7 @@ exports.handler = async (event) => {
         };
 
         patches.push(newPatch);
-        writePatches(patches);
+        await writePatches(patches);
 
         return { statusCode: 201, headers, body: JSON.stringify(newPatch) };
     }
@@ -101,13 +96,13 @@ exports.handler = async (event) => {
             return { statusCode: 400, headers, body: JSON.stringify({ error: "Missing id" }) };
         }
 
-        const patches = readPatches();
+        const patches = await readPatches();
         const filtered = patches.filter((p) => p.id !== id);
         if (filtered.length === patches.length) {
             return { statusCode: 404, headers, body: JSON.stringify({ error: "Not found" }) };
         }
 
-        writePatches(filtered);
+        await writePatches(filtered);
         return { statusCode: 200, headers, body: JSON.stringify({ deleted: id }) };
     }
 
@@ -125,7 +120,7 @@ exports.handler = async (event) => {
             return { statusCode: 400, headers, body: JSON.stringify({ error: "Invalid JSON" }) };
         }
 
-        const patches = readPatches();
+        const patches = await readPatches();
         const idx = patches.findIndex((p) => p.id === id);
         if (idx === -1) {
             return { statusCode: 404, headers, body: JSON.stringify({ error: "Not found" }) };
@@ -145,7 +140,7 @@ exports.handler = async (event) => {
             ...(link && { link: link.trim() }),
         };
 
-        writePatches(patches);
+        await writePatches(patches);
         return { statusCode: 200, headers, body: JSON.stringify(patches[idx]) };
     }
 
