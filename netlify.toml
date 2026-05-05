@@ -15,9 +15,18 @@
   to = "/.netlify/functions/post-patches"
   status = 200
 
+[[redirects]]
+  from = "/api/setup"
+  to = "/.netlify/functions/setup-blobs"
+  status = 200
+
 # Prevent direct directory listing of admin
 [[headers]]
   for = "/admin/*"
   [headers.values]
     X-Robots-Tag = "noindex, nofollow"
     X-Frame-Options = "DENY"
+
+[blobs]
+  [blobs.patches]
+    name = "patches"
