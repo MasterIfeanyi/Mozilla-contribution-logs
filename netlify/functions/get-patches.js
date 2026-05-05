@@ -1,6 +1,12 @@
 const { getStore } = require("@netlify/blobs");
 
-exports.handler = async () => {
+async function readPatches() {
+    const store = getStore("patches");
+    const raw = await store.get("all");
+    return raw ? JSON.parse(raw) : [];
+}
+
+exports.handler = async (event) => {
     const headers = {
         "Access-Control-Allow-Origin": "*",
         "Content-Type": "application/json",
@@ -15,9 +21,7 @@ exports.handler = async () => {
     }
 
     try {
-        const store = getStore("patches");
-        const raw = await store.get("all");
-        const patches = raw ? JSON.parse(raw) : [];
+        const patches = await readPatches();
 
         // Sort by most recent first
         patches.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
@@ -27,7 +31,7 @@ exports.handler = async () => {
             headers,
             body: JSON.stringify(patches)
         };
-    } catch (error) {
+    } catch (err) {
         return {
             statusCode: 500,
             headers,
