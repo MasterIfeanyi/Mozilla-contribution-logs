@@ -1,7 +1,14 @@
+require('dotenv').config();
 const { getStore } = require("@netlify/blobs");
 
 async function readPatches() {
-    const store = getStore("patches");
+    // Use the environment variables from .env file
+    const store = getStore({
+        name: "patches",
+        siteID: process.env.NETLIFY_SITE_ID,
+        token: process.env.NETLIFY_ACCESS_TOKEN
+    });
+    
     const raw = await store.get("all");
     return raw ? JSON.parse(raw) : [];
 }
@@ -22,8 +29,6 @@ exports.handler = async (event) => {
 
     try {
         const patches = await readPatches();
-
-        // Sort by most recent first
         patches.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
         return {
@@ -32,6 +37,7 @@ exports.handler = async (event) => {
             body: JSON.stringify(patches)
         };
     } catch (err) {
+        console.error("Error:", err.message);
         return {
             statusCode: 500,
             headers,
