@@ -1,79 +1,640 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin - Firefox Contributions</title>
-  <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin — Firefox Contributions</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --black: #000;
+      --white: #fff;
+      --gray: #666;
+      --light-gray: #e8e8e8;
+      --mid-gray: #ccc;
+      --link: #0000ee;
+      --error: #c00;
+      --success: #080;
+      --font-mono: "Courier New", Courier, monospace;
+      --font-sans: Georgia, "Times New Roman", serif;
+    }
+
+    body {
+      background: var(--white);
+      color: var(--black);
+      /* font-family: var(--font-sans); */
+      font-size: 16px;
+      line-height: 1.6;
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 60px 24px 120px;
+    }
+
+    /* ── LOGIN SCREEN ── */
+    #login-screen {
+      min-height: 60vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    #login-screen h1 {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: normal;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--gray);
+      margin-bottom: 32px;
+    }
+
+    /* ── APP SCREEN ── */
+    #app-screen { display: none; }
+
+    header {
+      border-bottom: 2px solid var(--black);
+      padding-bottom: 20px;
+      margin-bottom: 40px;
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    header div > span {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--gray);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    header div > p {
+      font-size: 20px;
+    }
+
+    #logout-btn {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      background: none;
+      border: 1px solid var(--black);
+      cursor: pointer;
+      padding: 5px 10px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    #logout-btn:hover { background: var(--black); color: var(--white); }
+
+    /* ── SHARED FORM STYLES ── */
+    .form-group {
+      margin-bottom: 24px;
+    }
+
+    label {
+      display: block;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--gray);
+      margin-bottom: 6px;
+    }
+
+    input[type="text"],
+    input[type="url"],
+    input[type="password"],
+    textarea {
+      width: 100%;
+      font-family: var(--font-mono);
+      font-size: 13px;
+      border: 1px solid var(--black);
+      padding: 10px 12px;
+      background: var(--white);
+      color: var(--black);
+      outline: none;
+      border-radius: 0;
+      appearance: none;
+    }
+
+    input:focus, textarea:focus {
+      border-color: var(--black);
+      box-shadow: 2px 2px 0 var(--black);
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 100px;
+    }
+
+    button[type="submit"], .btn-primary {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      background: var(--black);
+      color: var(--white);
+      border: 1px solid var(--black);
+      padding: 10px 20px;
+      cursor: pointer;
+      border-radius: 0;
+    }
+
+    button[type="submit"]:hover, .btn-primary:hover {
+      background: var(--white);
+      color: var(--black);
+    }
+
+    button[type="submit"]:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    /* ── FEEDBACK MESSAGES ── */
+    .msg {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      padding: 10px 0;
+      display: none;
+    }
+    .msg.error { color: var(--error); }
+    .msg.success { color: var(--success); }
+    .msg.visible { display: block; }
+
+    /* ── ADD FORM SECTION ── */
+    .section-label {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--gray);
+      margin-bottom: 20px;
+    }
+
+    #add-form-section {
+      border: 1px solid var(--black);
+      padding: 28px;
+      margin-bottom: 48px;
+    }
+
+    /* ── PATCH LIST ── */
+    #patches-section { margin-top: 8px; }
+
+    .patch-count {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--gray);
+      margin-bottom: 16px;
+    }
+
+    .patch-item {
+      border-top: 1px solid var(--light-gray);
+      padding: 24px 0;
+    }
+
+    .patch-item:last-child { border-bottom: 1px solid var(--light-gray); }
+
+    .patch-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 16px;
+    }
+
+    .patch-content { flex: 1; min-width: 0; }
+
+    .patch-date {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--gray);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 6px;
+    }
+
+    .patch-title {
+      font-size: 17px;
+      font-weight: bold;
+      margin-bottom: 8px;
+      line-height: 1.3;
+    }
+
+    .patch-desc {
+      font-size: 14px;
+      color: #333;
+      margin-bottom: 10px;
+      line-height: 1.6;
+    }
+
+    .patch-link a {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--link);
+      text-decoration: underline;
+      word-break: break-all;
+    }
+
+    .patch-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    .btn-action {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      background: none;
+      border: 1px solid var(--mid-gray);
+      padding: 4px 10px;
+      cursor: pointer;
+      color: var(--black);
+      white-space: nowrap;
+    }
+
+    .btn-action:hover { border-color: var(--black); }
+    .btn-action.delete:hover { border-color: var(--error); color: var(--error); }
+
+    /* ── EDIT INLINE ── */
+    .edit-form {
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px dashed var(--mid-gray);
+      display: none;
+    }
+
+    .edit-form.open { display: block; }
+
+    .edit-form .form-group { margin-bottom: 14px; }
+
+    .edit-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .btn-cancel {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      background: none;
+      border: 1px solid var(--mid-gray);
+      padding: 6px 14px;
+      cursor: pointer;
+      color: var(--gray);
+    }
+
+    .btn-save {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      background: var(--black);
+      border: 1px solid var(--black);
+      padding: 6px 14px;
+      cursor: pointer;
+      color: var(--white);
+    }
+
+    .btn-save:hover { background: var(--white); color: var(--black); }
+
+    .empty-state {
+      font-family: var(--font-mono);
+      font-size: 13px;
+      color: var(--gray);
+      padding: 32px 0;
+    }
+
+    footer {
+      margin-top: 64px;
+      padding-top: 20px;
+      border-top: 1px solid var(--light-gray);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--gray);
+    }
+
+    footer a { color: inherit; }
+  </style>
 </head>
 <body>
-  <h1>Admin: New Patch</h1>
-  
-  <div id="message"></div>
 
-  <form id="patchForm" class="admin-form">
-    <div class="form-group">
-      <label for="title">Title</label>
-      <input type="text" id="title" name="title" required>
+  <!-- LOGIN -->
+  <div id="login-screen">
+    <h1>mozilla / firefox &mdash; admin</h1>
+    <div id="add-form-section">
+      <div class="form-group">
+        <label for="login-user">Username</label>
+        <input type="text" id="login-user" autocomplete="username" />
+      </div>
+      <div class="form-group">
+        <label for="login-pass">Password</label>
+        <input type="password" id="login-pass" autocomplete="current-password" />
+      </div>
+      <button type="submit" id="login-btn">Sign in</button>
+      <div class="msg error" id="login-error"></div>
     </div>
-    
-    <div class="form-group">
-      <label for="description">Bug Description</label>
-      <textarea id="description" name="description" required></textarea>
+  </div>
+
+  <!-- APP -->
+  <div id="app-screen">
+    <header>
+      <div>
+        <span>mozilla / firefox &mdash; admin</span>
+        <p>Contribution log</p>
+      </div>
+      <button id="logout-btn">Sign out</button>
+    </header>
+
+    <!-- ADD FORM -->
+    <div id="add-form-section">
+      <p class="section-label">New patch</p>
+      <div class="form-group">
+        <label for="f-title">Title</label>
+        <input type="text" id="f-title" placeholder="Brief description of the fix" />
+      </div>
+      <div class="form-group">
+        <label for="f-desc">Bug description</label>
+        <textarea id="f-desc" rows="4" placeholder="What was the bug, what did you change, and why?"></textarea>
+      </div>
+      <div class="form-group">
+        <label for="f-link">Phabricator link</label>
+        <input type="url" id="f-link" placeholder="https://phabricator.services.mozilla.com/D..." />
+      </div>
+      <button type="submit" id="submit-btn">Add patch</button>
+      <div class="msg" id="submit-msg"></div>
     </div>
-    
-    <div class="form-group">
-      <label for="link">Phabricator Link</label>
-      <input type="url" id="link" name="link" required 
-             placeholder="https://phabricator.services.mozilla.com/...">
+
+    <!-- PATCH LIST -->
+    <div id="patches-section">
+      <p class="section-label">All patches</p>
+      <p class="patch-count" id="patch-count"></p>
+      <div id="patch-list"></div>
     </div>
-    
-    <button type="submit">Submit Patch</button>
-  </form>
+
+    <footer>
+      <a href="/">← public view</a>
+    </footer>
+  </div>
 
   <script>
-    const form = document.getElementById('patchForm');
-    const messageDiv = document.getElementById('message');
-    
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      
-      const title = document.getElementById('title').value;
-      const description = document.getElementById('description').value;
-      const link = document.getElementById('link').value;
-      
+    // ── AUTH ──────────────────────────────────────────────────────────────────
+    const GET_API   = "/.netlify/functions/get-patches";
+    const ADMIN_API = "/.netlify/functions/post-patches";
+
+    let credentials = null; // { user, pass }
+
+    function makeAuthHeader(creds) {
+      return "Basic " + btoa(`${creds.user}:${creds.pass}`);
+    }
+
+    async function tryLogin(user, pass) {
+      // Probe the admin endpoint with a noop-ish DELETE that will 400 (not 401) if auth passes
+      const res = await fetch(`${ADMIN_API}?id=__probe__`, {
+        method: "DELETE",
+        headers: { Authorization: makeAuthHeader({ user, pass }) },
+      });
+      // 401 = bad auth. 404/400 = auth ok, resource not found — both acceptable
+      if (res.status === 401) return false;
+      return true;
+    }
+
+    document.getElementById("login-btn").addEventListener("click", async () => {
+      const user = document.getElementById("login-user").value.trim();
+      const pass = document.getElementById("login-pass").value;
+      const errEl = document.getElementById("login-error");
+
+      if (!user || !pass) { showMsg(errEl, "Enter username and password.", "error"); return; }
+
+      const btn = document.getElementById("login-btn");
+      btn.disabled = true;
+      btn.textContent = "Verifying...";
+
       try {
-        const response = await fetch('/api/admin/patches', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ title, description, link })
-        });
-        
-        if (response.status === 401) {
-          showMessage('Authentication required. Please log in.', 'error');
-          return;
+        const ok = await tryLogin(user, pass);
+        if (!ok) {
+          showMsg(errEl, "Invalid credentials.", "error");
+        } else {
+          credentials = { user, pass };
+          document.getElementById("login-screen").style.display = "none";
+          document.getElementById("app-screen").style.display = "block";
+          loadPatches();
         }
-        
-        if (!response.ok) {
-          throw new Error('Failed to create patch');
-        }
-        
-        const patch = await response.json();
-        showMessage('Patch added successfully!', 'success');
-        form.reset();
-        
-      } catch (error) {
-        showMessage('Error: ' + error.message, 'error');
+      } catch (e) {
+        showMsg(errEl, "Network error. Try again.", "error");
+      } finally {
+        btn.disabled = false;
+        btn.textContent = "Sign in";
       }
     });
-    
-    function showMessage(text, type) {
-      messageDiv.innerHTML = `<div class="message ${type}">${text}</div>`;
-      setTimeout(() => {
-        messageDiv.innerHTML = '';
-      }, 5000);
+
+    // Allow Enter key on login
+    ["login-user", "login-pass"].forEach(id => {
+      document.getElementById(id).addEventListener("keydown", e => {
+        if (e.key === "Enter") document.getElementById("login-btn").click();
+      });
+    });
+
+    document.getElementById("logout-btn").addEventListener("click", () => {
+      credentials = null;
+      document.getElementById("app-screen").style.display = "none";
+      document.getElementById("login-screen").style.display = "flex";
+      document.getElementById("login-pass").value = "";
+    });
+
+    // ── HELPERS ───────────────────────────────────────────────────────────────
+    function escapeHtml(str) {
+      return String(str)
+        .replace(/&/g, "&amp;").replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+    }
+
+    function formatDate(iso) {
+      return new Date(iso).toISOString().slice(0, 10);
+    }
+
+    function showMsg(el, text, type) {
+      el.textContent = text;
+      el.className = `msg ${type} visible`;
+    }
+
+    function hideMsg(el) {
+      el.className = "msg";
+      el.textContent = "";
+    }
+
+    // ── LOAD PATCHES ─────────────────────────────────────────────────────────
+    let patches = [];
+
+    async function loadPatches() {
+      try {
+        const res = await fetch(GET_API);
+        patches = await res.json();
+        renderPatches();
+      } catch (e) {
+        document.getElementById("patch-list").innerHTML =
+          '<p class="empty-state">Error loading patches.</p>';
+      }
+    }
+
+    function renderPatches() {
+      const listEl = document.getElementById("patch-list");
+      const countEl = document.getElementById("patch-count");
+      countEl.textContent = `${patches.length} patch${patches.length !== 1 ? "es" : ""}`;
+
+      if (patches.length === 0) {
+        listEl.innerHTML = '<p class="empty-state">No patches yet.</p>';
+        return;
+      }
+
+      listEl.innerHTML = patches.map(p => `
+        <div class="patch-item" id="item-${p.id}">
+          <div class="patch-row">
+            <div class="patch-content">
+              <div class="patch-date">${formatDate(p.createdAt)}</div>
+              <div class="patch-title">${escapeHtml(p.title)}</div>
+              <div class="patch-desc">${escapeHtml(p.description)}</div>
+              <div class="patch-link"><a href="${escapeHtml(p.link)}" target="_blank" rel="noopener noreferrer">${escapeHtml(p.link)}</a></div>
+            </div>
+            <div class="patch-actions">
+              <button class="btn-action" onclick="openEdit('${p.id}')">Edit</button>
+              <button class="btn-action delete" onclick="deletePatch('${p.id}')">Delete</button>
+            </div>
+          </div>
+          <div class="edit-form" id="edit-${p.id}">
+            <div class="form-group">
+              <label>Title</label>
+              <input type="text" id="edit-title-${p.id}" value="${escapeHtml(p.title)}" />
+            </div>
+            <div class="form-group">
+              <label>Bug description</label>
+              <textarea id="edit-desc-${p.id}" rows="3">${escapeHtml(p.description)}</textarea>
+            </div>
+            <div class="form-group">
+              <label>Phabricator link</label>
+              <input type="url" id="edit-link-${p.id}" value="${escapeHtml(p.link)}" />
+            </div>
+            <div class="edit-actions">
+              <button class="btn-save" onclick="saveEdit('${p.id}')">Save</button>
+              <button class="btn-cancel" onclick="closeEdit('${p.id}')">Cancel</button>
+              <span class="msg" id="edit-msg-${p.id}" style="margin-left:8px;"></span>
+            </div>
+          </div>
+        </div>
+      `).join("");
+    }
+
+    // ── ADD PATCH ────────────────────────────────────────────────────────────
+    document.getElementById("submit-btn").addEventListener("click", async () => {
+      const title = document.getElementById("f-title").value.trim();
+      const description = document.getElementById("f-desc").value.trim();
+      const link = document.getElementById("f-link").value.trim();
+      const msgEl = document.getElementById("submit-msg");
+      const btn = document.getElementById("submit-btn");
+
+      hideMsg(msgEl);
+
+      if (!title || !description || !link) {
+        showMsg(msgEl, "All fields are required.", "error"); return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = "Submitting...";
+
+      try {
+        const res = await fetch(ADMIN_API, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: makeAuthHeader(credentials),
+          },
+          body: JSON.stringify({ title, description, link }),
+        });
+
+        if (!res.ok) {
+          const d = await res.json();
+          showMsg(msgEl, d.error || "Submit failed.", "error");
+        } else {
+          document.getElementById("f-title").value = "";
+          document.getElementById("f-desc").value = "";
+          document.getElementById("f-link").value = "";
+          showMsg(msgEl, "Patch added.", "success");
+          await loadPatches();
+        }
+      } catch (e) {
+        showMsg(msgEl, "Network error.", "error");
+      } finally {
+        btn.disabled = false;
+        btn.textContent = "Add patch";
+      }
+    });
+
+    // ── EDIT ─────────────────────────────────────────────────────────────────
+    function openEdit(id) {
+      document.getElementById(`edit-${id}`).classList.add("open");
+    }
+
+    function closeEdit(id) {
+      document.getElementById(`edit-${id}`).classList.remove("open");
+    }
+
+    async function saveEdit(id) {
+      const title = document.getElementById(`edit-title-${id}`).value.trim();
+      const description = document.getElementById(`edit-desc-${id}`).value.trim();
+      const link = document.getElementById(`edit-link-${id}`).value.trim();
+      const msgEl = document.getElementById(`edit-msg-${id}`);
+
+      if (!title || !description || !link) {
+        showMsg(msgEl, "All fields required.", "error"); return;
+      }
+
+      try {
+        const res = await fetch(`${ADMIN_API}?id=${encodeURIComponent(id)}`, {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: makeAuthHeader(credentials),
+          },
+          body: JSON.stringify({ title, description, link }),
+        });
+
+        if (!res.ok) {
+          const d = await res.json();
+          showMsg(msgEl, d.error || "Save failed.", "error");
+        } else {
+          await loadPatches();
+        }
+      } catch (e) {
+        showMsg(msgEl, "Network error.", "error");
+      }
+    }
+
+    // ── DELETE ────────────────────────────────────────────────────────────────
+    async function deletePatch(id) {
+      if (!confirm("Delete this patch?")) return;
+
+      try {
+        const res = await fetch(`${ADMIN_API}?id=${encodeURIComponent(id)}`, {
+          method: "DELETE",
+          headers: { Authorization: makeAuthHeader(credentials) },
+        });
+
+        if (res.ok) {
+          await loadPatches();
+        } else {
+          const d = await res.json();
+          alert(d.error || "Delete failed.");
+        }
+      } catch (e) {
+        alert("Network error.");
+      }
     }
   </script>
 </body>

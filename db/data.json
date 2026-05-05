@@ -19,5 +19,12 @@
     "description": "DoH fallback to native resolver was not triggering correctly on certain network configurations, causing silent resolution failures. Added explicit timeout and retry path.",
     "link": "https://phabricator.services.mozilla.com/D11987",
     "createdAt": "2025-03-14T08:15:00.000Z"
+  },
+  {
+    "id": "1777990686044",
+    "title": "Patch 55",
+    "description": "uhiwhwiwhhw",
+    "link": "https://goal.com",
+    "createdAt": "2026-05-05T14:18:06.044Z"
   }
 ]

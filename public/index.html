@@ -1,69 +1,206 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Mozilla Firefox Contributions</title>
-  <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Firefox Contributions</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --black: #000;
+      --white: #fff;
+      --gray: #666;
+      --light-gray: #e8e8e8;
+      --link: #0000ee;
+      --font-mono: "Courier New", Courier, monospace;
+      --font-sans: Georgia, "Times New Roman", serif;
+    }
+
+    body {
+      background: var(--white);
+      color: var(--black);
+      font-family: var(--font-sans);
+      font-size: 16px;
+      line-height: 1.6;
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 60px 24px 120px;
+    }
+
+    header {
+      border-bottom: 2px solid var(--black);
+      padding-bottom: 20px;
+      margin-bottom: 48px;
+    }
+
+    header h1 {
+      font-family: var(--font-mono);
+      font-size: 13px;
+      font-weight: normal;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--gray);
+      margin-bottom: 8px;
+    }
+
+    header p {
+      font-size: 22px;
+      font-weight: normal;
+      color: var(--black);
+    }
+
+    #status {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--gray);
+      margin-bottom: 32px;
+    }
+
+    .patch-list {
+      list-style: none;
+    }
+
+    .patch-item {
+      border-top: 1px solid var(--light-gray);
+      padding: 28px 0;
+    }
+
+    .patch-item:last-child {
+      border-bottom: 1px solid var(--light-gray);
+    }
+
+    .patch-meta {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--gray);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .patch-title {
+      font-size: 18px;
+      font-weight: bold;
+      color: var(--black);
+      margin-bottom: 10px;
+      line-height: 1.3;
+    }
+
+    .patch-description {
+      font-size: 15px;
+      color: #333;
+      margin-bottom: 14px;
+      line-height: 1.65;
+    }
+
+    .patch-link a {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--link);
+      text-decoration: underline;
+      word-break: break-all;
+    }
+
+    .patch-link a:visited {
+      color: #551a8b;
+    }
+
+    .empty-state {
+      font-family: var(--font-mono);
+      font-size: 13px;
+      color: var(--gray);
+      padding: 40px 0;
+    }
+
+    .error-state {
+      font-family: var(--font-mono);
+      font-size: 13px;
+      color: #c00;
+      padding: 20px 0;
+    }
+
+    footer {
+      margin-top: 64px;
+      padding-top: 20px;
+      border-top: 1px solid var(--light-gray);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--gray);
+    }
+  </style>
 </head>
 <body>
-  <h1>Firefox Patch Log</h1>
-  
-  <ul id="patchList" class="patch-list">
-    <li class="empty-state">Loading contributions...</li>
-  </ul>
+  <header>
+    <h1>mozilla / firefox</h1>
+    <p>Contribution log</p>
+  </header>
+
+  <div id="status">Loading...</div>
+  <ul class="patch-list" id="patch-list"></ul>
+
+  <footer>
+    patches are listed newest first &mdash; <a href="/admin" style="color: inherit;">&#8203;</a>
+  </footer>
 
   <script>
-    async function loadPatches() {
-      const list = document.getElementById('patchList');
-      
-      try {
-        const response = await fetch('/api/patches');
-        const patches = await response.json();
-        
-        if (patches.length === 0) {
-          list.innerHTML = '<li class="empty-state">No contributions yet.</li>';
-          return;
-        }
-        
-        list.innerHTML = patches.map(patch => `
-          <li class="patch-item">
-            <div class="patch-title">${escapeHtml(patch.title)}</div>
-            <div class="patch-description">${escapeHtml(patch.description)}</div>
-            <a href="${escapeHtml(patch.link)}" 
-               class="patch-link" 
-               target="_blank" 
-               rel="noopener">
-              View on Phabricator →
-            </a>
-            <span class="patch-date">
-              ${formatDate(patch.createdAt)}
-            </span>
-          </li>
-        `).join('');
-      } catch (error) {
-        list.innerHTML = '<li class="empty-state">Failed to load contributions.</li>';
-      }
-    }
-    
-    function escapeHtml(unsafe) {
-      return unsafe
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
-    }
-    
-    function formatDate(dateString) {
-      const date = new Date(dateString);
+    // const API = "/.netlify/functions/patches-get";
+
+    function formatDate(iso) {
+      const date = new Date(iso);
       return date.toLocaleDateString('en-US', {
         year: 'numeric',
         month: 'long',
         day: 'numeric'
       });
     }
-    
+
+    function escapeHtml(str) {
+      return str
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;")
+    }
+
+    async function loadPatches() {
+      const statusEl = document.getElementById("status");
+      const listEl = document.getElementById("patch-list");
+
+      try {
+        const res = await fetch("/api/patches");
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const patches = await res.json();
+
+        if (patches.length === 0) {
+          statusEl.textContent = "";
+          listEl.innerHTML = '<li class="empty-state">No contributions logged yet.</li>';
+          return;
+        }
+
+        statusEl.textContent = `${patches.length} patch${patches.length !== 1 ? "es" : ""} total`;
+        listEl.innerHTML = patches.map(p => `
+          <li class="patch-item">
+            <div class="patch-meta">${formatDate(p.createdAt)}</div>
+            <div class="patch-title">${escapeHtml(p.title)}</div>
+            <div class="patch-description">${escapeHtml(p.description)}</div>
+            <div class="patch-link">
+                <a href="${escapeHtml(p.link)}"
+                    target="_blank"
+                    rel="noopener
+                    noreferrer">
+                    ${escapeHtml(p.link)}
+                </a>
+            </div>
+          </li>
+        `).join("");
+      } catch (err) {
+        statusEl.textContent = "";
+        listEl.innerHTML = `<li class="error-state">Error loading patches: ${err.message}</li>`;
+      }
+    }
+
     loadPatches();
   </script>
 </body>
