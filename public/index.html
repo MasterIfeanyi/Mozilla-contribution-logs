@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mozilla Firefox Contributions</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <h1>Firefox Patch Log</h1>
+  
+  <ul id="patchList" class="patch-list">
+    <li class="empty-state">Loading contributions...</li>
+  </ul>
+
+  <script>
+    async function loadPatches() {
+      const list = document.getElementById('patchList');
+      
+      try {
+        const response = await fetch('/api/patches');
+        const patches = await response.json();
+        
+        if (patches.length === 0) {
+          list.innerHTML = '<li class="empty-state">No contributions yet.</li>';
+          return;
+        }
+        
+        list.innerHTML = patches.map(patch => `
+          <li class="patch-item">
+            <div class="patch-title">${escapeHtml(patch.title)}</div>
+            <div class="patch-description">${escapeHtml(patch.description)}</div>
+            <a href="${escapeHtml(patch.link)}" 
+               class="patch-link" 
+               target="_blank" 
+               rel="noopener">
+              View on Phabricator →
+            </a>
+            <span class="patch-date">
+              ${formatDate(patch.createdAt)}
+            </span>
+          </li>
+        `).join('');
+      } catch (error) {
+        list.innerHTML = '<li class="empty-state">Failed to load contributions.</li>';
+      }
+    }
+    
+    function escapeHtml(unsafe) {
+      return unsafe
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+    
+    function formatDate(dateString) {
+      const date = new Date(dateString);
+      return date.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      });
+    }
+    
+    loadPatches();
+  </script>
+</body>
+</html>
