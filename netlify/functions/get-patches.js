@@ -1,4 +1,9 @@
-require('dotenv').config();
+// Only load dotenv in local development
+if (process.env.NETLIFY_DEV) {
+    require('dotenv').config();
+}
+
+
 const { getStore } = require("@netlify/blobs");
 
 async function readPatches() {
