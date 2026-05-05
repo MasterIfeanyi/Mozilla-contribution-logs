@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin - Firefox Contributions</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <h1>Admin: New Patch</h1>
+  
+  <div id="message"></div>
+
+  <form id="patchForm" class="admin-form">
+    <div class="form-group">
+      <label for="title">Title</label>
+      <input type="text" id="title" name="title" required>
+    </div>
+    
+    <div class="form-group">
+      <label for="description">Bug Description</label>
+      <textarea id="description" name="description" required></textarea>
+    </div>
+    
+    <div class="form-group">
+      <label for="link">Phabricator Link</label>
+      <input type="url" id="link" name="link" required 
+             placeholder="https://phabricator.services.mozilla.com/...">
+    </div>
+    
+    <button type="submit">Submit Patch</button>
+  </form>
+
+  <script>
+    const form = document.getElementById('patchForm');
+    const messageDiv = document.getElementById('message');
+    
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const title = document.getElementById('title').value;
+      const description = document.getElementById('description').value;
+      const link = document.getElementById('link').value;
+      
+      try {
+        const response = await fetch('/api/admin/patches', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ title, description, link })
+        });
+        
+        if (response.status === 401) {
+          showMessage('Authentication required. Please log in.', 'error');
+          return;
+        }
+        
+        if (!response.ok) {
+          throw new Error('Failed to create patch');
+        }
+        
+        const patch = await response.json();
+        showMessage('Patch added successfully!', 'success');
+        form.reset();
+        
+      } catch (error) {
+        showMessage('Error: ' + error.message, 'error');
+      }
+    });
+    
+    function showMessage(text, type) {
+      messageDiv.innerHTML = `<div class="message ${type}">${text}</div>`;
+      setTimeout(() => {
+        messageDiv.innerHTML = '';
+      }, 5000);
+    }
+  </script>
+</body>
+</html>
