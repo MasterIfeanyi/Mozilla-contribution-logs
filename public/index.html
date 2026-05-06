@@ -1,11 +1,29 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Firefox Contributions</title>
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="/favicon2.png" />
+  <!-- Open Graph (link preview) -->
+  <meta property="og:title" content="Firefox Contributions" />
+  <meta property="og:description" content="A log of my open-source patches to Mozilla Firefox." />
+  <meta property="og:image" content="https://ifeanyi-mozilla.netlify.app/favicon2.png" />
+  <meta property="og:url" content="https://ifeanyi-mozilla.netlify.app" />
+  <meta property="og:type" content="website" />
+  <!-- Twitter/X card -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:image" content="https://ifeanyi-mozilla.netlify.app/favicon2.png" />
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
     :root {
       --black: #000;
@@ -20,7 +38,7 @@
     body {
       background: var(--white);
       color: var(--black);
-      font-family: var(--font-sans);
+      font-family: arial;
       font-size: 16px;
       line-height: 1.6;
       max-width: 760px;
@@ -130,6 +148,7 @@
     }
   </style>
 </head>
+
 <body>
   <header>
     <h1>mozilla / firefox</h1>
@@ -204,4 +223,5 @@
     loadPatches();
   </script>
 </body>
+
 </html>
