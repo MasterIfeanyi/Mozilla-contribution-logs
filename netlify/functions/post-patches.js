@@ -31,8 +31,8 @@ function authenticate(event) {
     const decoded = Buffer.from(encoded, "base64").toString("utf8");
     const [username, password] = decoded.split(":");
 
-    return username === process.env.ADMIN_USERNAME && 
-           password === process.env.ADMIN_PASSWORD;
+    return username === process.env.ADMIN_USERNAME &&
+        password === process.env.ADMIN_PASSWORD;
 }
 
 exports.handler = async (event) => {
@@ -56,25 +56,27 @@ exports.handler = async (event) => {
     }
 
     try {
+
+        // POST handler
         if (event.httpMethod === "POST") {
             const body = JSON.parse(event.body);
             const { title, description, link } = body;
-            
+
             if (!title?.trim() || !description?.trim() || !link?.trim()) {
-                return { 
-                    statusCode: 400, 
-                    headers, 
-                    body: JSON.stringify({ error: "Missing required fields" }) 
+                return {
+                    statusCode: 400,
+                    headers,
+                    body: JSON.stringify({ error: "Missing required fields" })
                 };
             }
 
             try {
                 new URL(link);
             } catch {
-                return { 
-                    statusCode: 400, 
-                    headers, 
-                    body: JSON.stringify({ error: "Invalid URL" }) 
+                return {
+                    statusCode: 400,
+                    headers,
+                    body: JSON.stringify({ error: "Invalid URL" })
                 };
             }
 
@@ -93,12 +95,57 @@ exports.handler = async (event) => {
             return { statusCode: 201, headers, body: JSON.stringify(newPatch) };
         }
 
-        // Add DELETE and PATCH handlers here if needed...
+        // DELETE handler
 
-        return { 
-            statusCode: 405, 
-            headers, 
-            body: JSON.stringify({ error: "Method not allowed" }) 
+        if (event.httpMethod === "DELETE") {
+            const id = event.queryStringParameters?.id;
+            if (!id || id === "__probe__") {
+                return { statusCode: 400, headers, body: JSON.stringify({ error: "Missing id" }) };
+            }
+
+            const patches = await readPatches();
+            const filtered = patches.filter(p => p.id !== id);
+
+            if (filtered.length === patches.length) {
+                return { statusCode: 404, headers, body: JSON.stringify({ error: "Patch not found" }) };
+            }
+
+            await writePatches(filtered);
+            return { statusCode: 200, headers, body: JSON.stringify({ ok: true }) };
+        }
+
+        // PATCH handler
+        if (event.httpMethod === "PATCH") {
+            const id = event.queryStringParameters?.id;
+            if (!id) {
+                return { statusCode: 400, headers, body: JSON.stringify({ error: "Missing id" }) };
+            }
+
+            const { title, description, link } = JSON.parse(event.body);
+            if (!title?.trim() || !description?.trim() || !link?.trim()) {
+                return { statusCode: 400, headers, body: JSON.stringify({ error: "Missing required fields" }) };
+            }
+
+            try { new URL(link); } catch {
+                return { statusCode: 400, headers, body: JSON.stringify({ error: "Invalid URL" }) };
+            }
+
+            const patches = await readPatches();
+            const index = patches.findIndex(p => p.id === id);
+
+            if (index === -1) {
+                return { statusCode: 404, headers, body: JSON.stringify({ error: "Patch not found" }) };
+            }
+
+            patches[index] = { ...patches[index], title: title.trim(), description: description.trim(), link: link.trim() };
+            await writePatches(patches);
+            return { statusCode: 200, headers, body: JSON.stringify(patches[index]) };
+        }
+
+        return {
+            statusCode: 405,
+            headers,
+            body: JSON.stringify({ error: "Method not allowed" })
         };
     } catch (err) {
         console.error("Error:", err.message);
