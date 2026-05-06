@@ -1,11 +1,20 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Admin — Firefox Contributions</title>
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="/favicon2.png" />
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
     :root {
       --black: #000;
@@ -50,7 +59,9 @@
     }
 
     /* ── APP SCREEN ── */
-    #app-screen { display: none; }
+    #app-screen {
+      display: none;
+    }
 
     header {
       border-bottom: 2px solid var(--black);
@@ -63,7 +74,7 @@
       flex-wrap: wrap;
     }
 
-    header div > span {
+    header div>span {
       font-family: var(--font-mono);
       font-size: 11px;
       color: var(--gray);
@@ -73,7 +84,7 @@
       margin-bottom: 4px;
     }
 
-    header div > p {
+    header div>p {
       font-size: 20px;
     }
 
@@ -88,7 +99,10 @@
       text-transform: uppercase;
     }
 
-    #logout-btn:hover { background: var(--black); color: var(--white); }
+    #logout-btn:hover {
+      background: var(--black);
+      color: var(--white);
+    }
 
     /* ── SHARED FORM STYLES ── */
     .form-group {
@@ -121,7 +135,8 @@
       appearance: none;
     }
 
-    input:focus, textarea:focus {
+    input:focus,
+    textarea:focus {
       border-color: var(--black);
       box-shadow: 2px 2px 0 var(--black);
     }
@@ -131,7 +146,8 @@
       min-height: 100px;
     }
 
-    button[type="submit"], .btn-primary {
+    button[type="submit"],
+    .btn-primary {
       font-family: var(--font-mono);
       font-size: 12px;
       letter-spacing: 0.06em;
@@ -144,7 +160,8 @@
       border-radius: 0;
     }
 
-    button[type="submit"]:hover, .btn-primary:hover {
+    button[type="submit"]:hover,
+    .btn-primary:hover {
       background: var(--white);
       color: var(--black);
     }
@@ -161,9 +178,18 @@
       padding: 10px 0;
       display: none;
     }
-    .msg.error { color: var(--error); }
-    .msg.success { color: var(--success); }
-    .msg.visible { display: block; }
+
+    .msg.error {
+      color: var(--error);
+    }
+
+    .msg.success {
+      color: var(--success);
+    }
+
+    .msg.visible {
+      display: block;
+    }
 
     /* ── ADD FORM SECTION ── */
     .section-label {
@@ -182,7 +208,9 @@
     }
 
     /* ── PATCH LIST ── */
-    #patches-section { margin-top: 8px; }
+    #patches-section {
+      margin-top: 8px;
+    }
 
     .patch-count {
       font-family: var(--font-mono);
@@ -196,7 +224,9 @@
       padding: 24px 0;
     }
 
-    .patch-item:last-child { border-bottom: 1px solid var(--light-gray); }
+    .patch-item:last-child {
+      border-bottom: 1px solid var(--light-gray);
+    }
 
     .patch-row {
       display: flex;
@@ -205,7 +235,10 @@
       gap: 16px;
     }
 
-    .patch-content { flex: 1; min-width: 0; }
+    .patch-content {
+      flex: 1;
+      min-width: 0;
+    }
 
     .patch-date {
       font-family: var(--font-mono);
@@ -258,8 +291,14 @@
       white-space: nowrap;
     }
 
-    .btn-action:hover { border-color: var(--black); }
-    .btn-action.delete:hover { border-color: var(--error); color: var(--error); }
+    .btn-action:hover {
+      border-color: var(--black);
+    }
+
+    .btn-action.delete:hover {
+      border-color: var(--error);
+      color: var(--error);
+    }
 
     /* ── EDIT INLINE ── */
     .edit-form {
@@ -269,9 +308,13 @@
       display: none;
     }
 
-    .edit-form.open { display: block; }
+    .edit-form.open {
+      display: block;
+    }
 
-    .edit-form .form-group { margin-bottom: 14px; }
+    .edit-form .form-group {
+      margin-bottom: 14px;
+    }
 
     .edit-actions {
       display: flex;
@@ -303,7 +346,10 @@
       color: var(--white);
     }
 
-    .btn-save:hover { background: var(--white); color: var(--black); }
+    .btn-save:hover {
+      background: var(--white);
+      color: var(--black);
+    }
 
     .empty-state {
       font-family: var(--font-mono);
@@ -321,9 +367,12 @@
       color: var(--gray);
     }
 
-    footer a { color: inherit; }
+    footer a {
+      color: inherit;
+    }
   </style>
 </head>
+
 <body>
 
   <!-- LOGIN -->
@@ -386,7 +435,7 @@
 
   <script>
     // ── AUTH ──────────────────────────────────────────────────────────────────
-    const GET_API   = "/.netlify/functions/get-patches";
+    const GET_API = "/.netlify/functions/get-patches";
     const ADMIN_API = "/.netlify/functions/post-patches";
 
     let credentials = null; // { user, pass }
@@ -638,4 +687,5 @@
     }
   </script>
 </body>
+
 </html>

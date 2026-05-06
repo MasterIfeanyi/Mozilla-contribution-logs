@@ -1,7 +1,4 @@
 node_modules
-<<<<<<< HEAD
-.env
-=======
 .netlify/
 *.log
 .env
@@ -41,4 +38,3 @@ coverage
 *.pyi
 *.pyw
 *.pyz
->>>>>>> 2c00af86017cc17630513d932dc0ed5c61e31467
