@@ -1,5 +1,7 @@
 node_modules
 .netlify/
+.netlify/functions-serve/
+.netlify/state.json
 *.log
 .env
 .env.local
