@@ -2,7 +2,7 @@ const { getStore } = require("@netlify/blobs");
 
 exports.handler = async () => {
     try {
-        const store = getStore("patches");
+        const store = await getStore("patches");
         
         // Initialize with your sample data or empty array
         const samplePatches = [

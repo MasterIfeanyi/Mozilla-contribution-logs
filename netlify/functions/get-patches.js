@@ -3,7 +3,6 @@ if (process.env.NETLIFY_DEV) {
     require('dotenv').config();
 }
 
-
 const { getStore } = require("@netlify/blobs");
 
 async function readPatches() {
